@@ -1,101 +1,82 @@
-const button = document.querySelector("button");
+const reminders = []; // Array to store reminders
 
-button.addEventListener("click", () => {
-  Notification.requestPermission().then((perm) => {
-    if (perm === "granted") {
-      const notification = new Notification("An Example notification", {
-        body: "This is more text",
-        // custom data
-        data: { hello: "world" },
-        // tag: "Welcome Message"
+      const addReminderForm = document.getElementById("addReminderForm");
+      const reminderInput = document.getElementById("reminderInput");
+      const timeInput = document.getElementById("timeInput");
+      
+    //  test notification
+    //   const button = document.querySelector("button");
+    //   button.addEventListener("click", () => {
+    //     Notification.requestPermission().then((perm) => {
+    //       if (perm === "granted") {
+    //         const notification = new Notification("An Example notification", {
+    //           body: "This is more text",
+    //           // custom data
+    //           data: { hello: "world" },
+    //           // tag: "Welcome Message"
+    //         });
+
+    //         notification.addEventListener("close", (e) => {
+    //           console.log(e);
+    //         });
+    //       }
+    //     });
+    //   });
+
+      // Add event listener to the form to handle reminder submission
+      addReminderForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const reminderText = reminderInput.value.trim();
+        const reminderTime = timeInput.value;
+
+        if (reminderText !== "" && reminderTime !== "") {
+          const reminder = { text: reminderText, time: reminderTime }; // Store time as string in reminder object
+          reminders.push(reminder);
+          displayReminders();
+          reminderInput.value = "";
+          timeInput.value = "";
+          setReminderNotification(reminderText, reminderTime); // Call function to set notification for the reminder
+        }
       });
 
-      notification.addEventListener("close", (e) => {
-        console.log(e);
-      });
-    }
-  });
-});
+      // Function to display reminders in the HTML
+      function displayReminders() {
+        const remindersList = document.getElementById("remindersList");
+        let remindersListHTML = "";
 
-let notification;
-let interval;
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") {
-    const leaveDate = new Date();
-    interval = setInterval(() => {
-      notification = new Notification("Come back please", {
-        body: `You have been gone for ${Math.round(
-          (new Date() - leaveDate) / 1000
-        )} seconds`,
-        tag: "Come Back",
-      });
-    }, 100);
-  } else {
-    if (interval) clearInterval(interval);
-    if (notification) notification.close();
-  }
-});
+        reminders.forEach((reminder, index) => {
+          remindersListHTML += `<li>${reminder.text} (Time: ${reminder.time})</li>`; // Include time in the list item
+        });
 
-// const button = document.querySelector("button");
-//     const reminders = [];
+        remindersList.innerHTML = remindersListHTML;
+      }
 
-//     // Function to create reminder notification
-//     function createReminderNotification(reminder) {
-//       const { time, message } = reminder;
-//       const notification = new Notification("Reminder", {
-//         body: message,
-//         // custom data
-//         data: { reminder: reminder },
-//         // set the reminder time as the notification timestamp
-//         timestamp: new Date(time),
-//       });
+      // Function to set notification for a specific reminder time
+      function setReminderNotification(reminderText, reminderTime) {
+        const [hour, minute] = reminderTime.split(":"); // Split time string into hour and minute parts
+        const now = new Date(); // Current date and time
+        const reminderDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          hour,
+          minute
+        ); // Create date object with reminder time
 
-//       // Add event listener for the "close" event on the notification
-//       notification.addEventListener("close", (e) => {
-//         console.log(e);
-//       });
-//     }
+        // Check if reminder time is in the past, if so, set it for the next day
+        if (reminderDate < now) {
+          reminderDate.setDate(now.getDate() + 1);
+        }
 
-//     // Event listener for "Add Reminder" button click
-//     button.addEventListener("click", () => {
-//       // Get input values from the form
-//       const timeInput = document.getElementById("timeInput");
-//       const messageInput = document.getElementById("messageInput");
-//       const time = timeInput.value;
-//       const message = messageInput.value;
+        // Calculate time difference in milliseconds from current time to reminder time
+        const timeDifference = reminderDate.getTime() - now.getTime();
 
-//       // Create a reminder object
-//       const reminder = { time, message };
-
-//       // Request notification permission
-//       Notification.requestPermission().then((perm) => {
-//         if (perm === "granted") {
-//           // Create notification with reminder message and custom data
-//           createReminderNotification(reminder);
-//           // Add reminder to reminders array
-//           reminders.push(reminder);
-//         }
-//       });
-//     });
-
-//     // Function to start checking for reminders
-//     function startCheckingReminders() {
-//       setInterval(() => {
-//         const currentTime = new Date();
-
-//         // Loop through reminders array
-//         for (const reminder of reminders) {
-//           // Convert reminder time to Date object
-//           const reminderTime = new Date(reminder.time);
-
-//           // Check if reminder time has passed
-//           if (currentTime >= reminderTime) {
-//             // Trigger notification for passed reminder
-//             createReminderNotification(reminder);
-//           }
-//         }
-//       }, 1000); // Check every 1 second
-//     }
-
-//     // Start checking for reminders
-//     startCheckingReminders();
+        // Set notification with the reminder text
+        setTimeout(() => {
+          if (Notification.permission === "granted") {
+            const notification = new Notification(reminderText, {
+              body: `It's time for your reminder!`,
+            });
+          }
+        }, timeDifference);
+      }

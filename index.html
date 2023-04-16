@@ -1,26 +1,17 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,
-    initial-scale=1.0">
+  <head>
     <title>Reminders App</title>
-    <script src="script.js" defer></script>
-</head>
-<body>
-    <button>Click</button>
-    <h1>Reminders App</h1>
-    <form id="reminderForm">
-        <label for="timeInput">Time:</label>
-        <input type="datetime-local" id="timeInput" required>
-        <br>
-        <label for="messageInput">Message:</label>
-        <input type="text" id="messageInput" required>
-        <br>
-        <button type="submit">Add Reminder</button>
+  </head>
+  <body>
+    <h1>Reminders</h1>
+    <ul id="remindersList"></ul>
+    <form id="addReminderForm">
+      <input type="text" id="reminderInput" placeholder="Enter a reminder" />
+      <input type="time" id="timeInput" placeholder="Enter time" />
+      <button type="submit">Add Reminder</button>
     </form>
-    <ul id="reminderList"></ul>
-    <script src="app.js"></script>
-</body>
+
+    <script src="script.js" defer></script>
+  </body>
 </html>
